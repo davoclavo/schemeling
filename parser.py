@@ -64,14 +64,17 @@ def parse(lisp_string):
 
 def scheme_eval(ast, environment=None):
     if type(ast) == list:
-        if ast[0]['type'] == 'identifier':
-            if ast[0]['value'] == '+':
-                numbers = [scheme_eval(number, environment) for number in ast[1:]]
-                return sum(numbers)
-            if ast[0]['value'] == '*':
-                numbers = [scheme_eval(number, environment) for number in ast[1:]]
+        first_element = ast[0]
+        if first_element['type'] == 'identifier':
+            numbers = [scheme_eval(number, environment) for number in ast[1:]]
+            if first_element['value'] == '+':
+                return reduce(operator.add, numbers)
+            if first_element['value'] == '*':
                 return reduce(operator.mul, numbers)
-
+            if first_element['value'] == '-':
+                return reduce(operator.sub, numbers)
+            if first_element['value'] == '/':
+                return reduce(operator.div, numbers)
     else:
         if ast['type'] == 'identifier':
             return lookup(ast['value'], environment)
@@ -94,6 +97,6 @@ class Environment(object):
 if __name__ == "__main__":
     print parse("((lambda (x) x) 'Lisp')")
     print scheme_eval(parse("(+ 1 2 3 4)"))
-    print scheme_eval(parse("(+ 1 (+ 2 3 4))"))
     print scheme_eval(parse("(* 2 (+ 2 3 4))"))
+    print scheme_eval(parse("(- 20 2 3 4)"))
     print scheme_eval(parse("(+ 1 x)"), Environment({'x': 5}))
